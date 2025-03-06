@@ -33,10 +33,12 @@ class GitHubService {
               .toList();
         }
       }
+      print('Failed to load templates: ${response.statusCode}');
       throw Exception(
         'Failed to load templates: ${response.statusCode}',
       );
     } catch (e) {
+      print('Error fetching templates: $e');
       throw Exception(
         'Error fetching templates: $e',
       );
@@ -55,6 +57,9 @@ class GitHubService {
         'Failed to fetch template body.',
       );
     } catch (e) {
+      print(
+        'Error fetching template body: $e',
+      );
       throw Exception(
         'Error fetching template body: $e',
       );
