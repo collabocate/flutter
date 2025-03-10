@@ -85,11 +85,6 @@ class _CollabocateState extends State<Collabocate> {
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Collabocate'),
-        centerTitle: true,
-        elevation: 0,
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
