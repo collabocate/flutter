@@ -198,7 +198,13 @@ class _IssueFormState extends State<IssueForm> {
         widget.onIssueCreated!();
       }
 
-      Navigator.of(context).pop();
+      titleController.clear();
+      bodyController.clear();
+      setState(
+        () {
+          selectedTemplateType = null;
+        },
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
