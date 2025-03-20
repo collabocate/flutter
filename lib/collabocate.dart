@@ -3,7 +3,9 @@ library collabocate_ui_plugin;
 import 'package:collabocate/src/config/config.dart';
 import 'package:collabocate/src/models/template_model.dart';
 import 'package:collabocate/src/services/github_service.dart';
+import 'package:collabocate/src/ui/issue_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class Collabocate extends StatefulWidget {
   const Collabocate({super.key});
@@ -53,10 +55,14 @@ class _CollabocateState extends State<Collabocate> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load templates: $e')),
+        SnackBar(
+          content: Text('Failed to load templates: $e'),
+        ),
       );
     } finally {
-      setState(() => isLoading = false);
+      setState(
+        () => isLoading = false,
+      );
     }
   }
 
@@ -85,222 +91,59 @@ class _CollabocateState extends State<Collabocate> {
       );
     }
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => IssueForm(
-                templates: templates,
-                service: _service,
-                onIssueCreated: _fetchTemplates,
-              ),
-            ),
-          );
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class IssueForm extends StatefulWidget {
-  final List<IssueTemplate> templates;
-  final GitHubService? service;
-  final VoidCallback? onIssueCreated;
-
-  const IssueForm({
-    super.key,
-    required this.templates,
-    this.service,
-    this.onIssueCreated,
-  });
-
-  @override
-  State<IssueForm> createState() => _IssueFormState();
-}
-
-class _IssueFormState extends State<IssueForm> {
-  String? selectedTemplateType;
-  final titleController = TextEditingController();
-  final bodyController = TextEditingController();
-  bool isLoading = false;
-
-  Future<void> _updateIssueBody(String? templateType) async {
-    if (widget.service == null || templateType == null) return;
-
-    setState(() => isLoading = true);
-    try {
-      final template = widget.templates.firstWhere(
-        (template) => template.name == templateType,
-        orElse: () => IssueTemplate(
-          name: '',
-          downloadUrl: '',
-        ),
-      );
-      final templateBody =
-          await widget.service!.fetchTemplateBody(template.downloadUrl);
-      setState(() {
-        selectedTemplateType = templateType;
-        bodyController.text = templateBody;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to load template: $e',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(
-        () => isLoading = false,
-      );
-    }
-  }
-
-  Future<void> _createIssue() async {
-    if (widget.service == null) return;
-
-    final title = titleController.text.trim();
-    final body = bodyController.text.trim();
-
-    if (title.isEmpty || body.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please provide both title and body for the issue.',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(
-      () => isLoading = true,
-    );
-    try {
-      await widget.service!.createIssue(title, body);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Issue created successfully!',
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      if (widget.onIssueCreated != null) {
-        widget.onIssueCreated!();
-      }
-
-      titleController.clear();
-      bodyController.clear();
-      setState(
-        () {
-          selectedTemplateType = null;
-        },
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(
-        () => isLoading = false,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Report Issue',
-        ),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Choose report type',
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 15),
-            DropdownButtonFormField<String>(
-              value: selectedTemplateType,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(15),
+      floatingActionButton: SpeedDial(
+        heroTag: 'uniqueSpeedDialTag',
+        animatedIcon: AnimatedIcons.add_event,
+        spacing: 8,
+        spaceBetweenChildren: 8,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.2,
+        children: [
+          SpeedDialChild(
+            elevation: 0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => IssueForm(
+                    templates: templates,
+                    service: _service,
+                    onIssueCreated: _fetchTemplates,
                   ),
                 ),
-                labelText: 'Template Type',
-              ),
-              items: widget.templates.map((template) {
-                return DropdownMenuItem(
-                  value: template.name,
-                  child: Text(template.name),
-                );
-              }).toList(),
-              onChanged: (value) => _updateIssueBody(value),
+              );
+            },
+            child: Icon(
+              Icons.report_problem_outlined,
             ),
-            const SizedBox(height: 15),
-            TextFormField(
-              controller: titleController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                labelText: 'Issue Title',
-              ),
+            label: 'Report Issue',
+            labelStyle: TextStyle(
+              fontSize: 18,
             ),
-            const SizedBox(height: 25),
-            TextFormField(
-              controller: bodyController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                labelText: 'Issue Body',
-              ),
-              maxLines: 5,
+          ),
+          SpeedDialChild(
+            elevation: 0,
+            onTap: () {},
+            child: Icon(
+              Icons.notifications_outlined,
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                onPressed: isLoading ? null : _createIssue,
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Create Issue'),
-                ),
-              ),
+            label: 'Notification',
+            labelStyle: TextStyle(
+              fontSize: 18,
             ),
-          ],
-        ),
+          ),
+          SpeedDialChild(
+            elevation: 0,
+            onTap: () {},
+            child: Icon(
+              Icons.chat_outlined,
+            ),
+            label: 'Chats',
+            labelStyle: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+        ],
       ),
     );
   }
