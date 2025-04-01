@@ -9,7 +9,7 @@ class GitHubService {
 
   Future<List<IssueTemplate>> fetchIssueTemplates() async {
     final url = Uri.parse(
-      '$baseUrl/external/github/issue-templates',
+      '$baseUrl/external/github/templates/issues',
     );
 
     try {

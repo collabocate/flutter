@@ -1,15 +1,15 @@
 class IssueTemplate {
-  final String name;
-  final String downloadUrl;
+  final String title;
+  final String content;
 
   IssueTemplate({
-    required this.name,
-    required this.downloadUrl,
+    required this.title,
+    required this.content,
   });
   factory IssueTemplate.fromJson(Map<String, dynamic> json) {
     return IssueTemplate(
-      name: json['name'] as String,
-      downloadUrl: json['download_url'] as String,
+      title: json['title'] as String,
+      content: json['content'] as String,
     );
   }
 }
