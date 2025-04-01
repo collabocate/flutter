@@ -30,17 +30,16 @@ class _IssueFormState extends State<IssueForm> {
     setState(() => isLoading = true);
     try {
       final template = widget.templates.firstWhere(
-        (template) => template.name == templateType,
+        (template) => template.title == templateType,
         orElse: () => IssueTemplate(
-          name: '',
-          downloadUrl: '',
+          title: '',
+          content: '',
         ),
       );
-      final templateBody =
-          await widget.service!.fetchTemplateBody(template.downloadUrl);
+
       setState(() {
         selectedTemplateType = templateType;
-        bodyController.text = templateBody;
+        bodyController.text = template.content;
       });
     } catch (e) {
       if (!mounted) return;
@@ -152,8 +151,10 @@ class _IssueFormState extends State<IssueForm> {
               ),
               items: widget.templates.map((template) {
                 return DropdownMenuItem(
-                  value: template.name,
-                  child: Text(template.name),
+                  value: template.title,
+                  child: Center(
+                    child: Text(template.title),
+                  ),
                 );
               }).toList(),
               onChanged: (value) => _updateIssueBody(value),
