@@ -153,13 +153,17 @@ class _IssueFormState extends State<IssueForm> {
                 return DropdownMenuItem(
                   value: template.title,
                   child: Center(
-                    child: Text(template.title),
+                    child: Text(
+                      template.title,
+                    ),
                   ),
                 );
               }).toList(),
               onChanged: (value) => _updateIssueBody(value),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(
+              height: 15,
+            ),
             TextFormField(
               controller: titleController,
               decoration: InputDecoration(
