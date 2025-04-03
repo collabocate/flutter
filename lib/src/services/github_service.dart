@@ -45,27 +45,6 @@ class GitHubService {
     }
   }
 
-  Future<String> fetchTemplateBody(String url) async {
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-      );
-      if (response.statusCode == 200) {
-        return response.body;
-      }
-      throw Exception(
-        'Failed to fetch template body.',
-      );
-    } catch (e) {
-      print(
-        'Error fetching template body: $e',
-      );
-      throw Exception(
-        'Error fetching template body: $e',
-      );
-    }
-  }
-
   Future<void> createIssue(String title, String body) async {
     final url = Uri.parse(
       '$baseUrl/external/github/issues',
