@@ -152,10 +152,8 @@ class _IssueFormState extends State<IssueForm> {
               items: widget.templates.map((template) {
                 return DropdownMenuItem(
                   value: template.title,
-                  child: Center(
-                    child: Text(
-                      template.title,
-                    ),
+                  child: Text(
+                    template.title,
                   ),
                 );
               }).toList(),
