@@ -159,9 +159,7 @@ class _IssueFormState extends State<IssueForm> {
               }).toList(),
               onChanged: (value) => _updateIssueBody(value),
             ),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             TextFormField(
               controller: titleController,
               decoration: InputDecoration(
