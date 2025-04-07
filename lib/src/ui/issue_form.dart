@@ -36,7 +36,6 @@ class _IssueFormState extends State<IssueForm> {
           content: '',
         ),
       );
-
       setState(() {
         selectedTemplateType = templateType;
         bodyController.text = template.content;
