@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:collabocate/src/config/config.dart';
 import 'package:collabocate/src/models/template_model.dart';
+import 'package:collabocate/src/services/notification_manager.dart';
 import 'package:http/http.dart' as http;
 
 class GitHubService {
   final String baseUrl = AppConfig.backendUrl;
+  final NotificationManager _notificationManager = NotificationManager();
 
   Future<List<IssueTemplate>> fetchIssueTemplates() async {
     final url = Uri.parse(
@@ -66,8 +68,38 @@ class GitHubService {
           'Failed to create issue: ${response.statusCode}',
         );
       }
+
+      // Create local notification for the new issue
+      await _notificationManager.addNotification(
+        title: title,
+        body: body.length > 100 ? '${body.substring(0, 100)}...' : body,
+        type: 'issue_created',
+        // Use a placeholder URL until backend provides an actual URL
+        issueUrl:
+            'https://github.com/collabo-community/use-me-for-experiments/issues',
+      );
     } catch (e) {
       rethrow;
     }
+  }
+
+  // Method to fetch notifications from local storage
+  Future<List<GithubNotification>> fetchNotifications() async {
+    return await _notificationManager.getNotifications();
+  }
+
+  // Mark a notification as read
+  Future<void> markNotificationAsRead(String notificationId) async {
+    await _notificationManager.markAsRead(notificationId);
+  }
+
+  // Mark all notifications as read
+  Future<void> markAllNotificationsAsRead() async {
+    await _notificationManager.markAllAsRead();
+  }
+
+  // Get unread notification count
+  Future<int> getUnreadCount() async {
+    return await _notificationManager.getUnreadCount();
   }
 }
