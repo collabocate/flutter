@@ -18,19 +18,21 @@ class GitHubService {
       if (response.statusCode == 200) {
         final decodedResponse = json.decode(response.body);
 
-        if (decodedResponse is! Map ||
-            !decodedResponse.containsKey('templates')) {
+        if (decodedResponse is! Map) {
           throw Exception(
             'Invalid API response format.',
           );
         }
 
-        if (decodedResponse['templates'] is List) {
-          return (decodedResponse['templates'] as List)
-              .map(
-                (template) => IssueTemplate.fromJson(template),
-              )
-              .toList();
+        if (decodedResponse['success'] == true &&
+            decodedResponse.containsKey('data')) {
+          if (decodedResponse['data'] is List) {
+            return (decodedResponse['data'] as List)
+                .map(
+                  (template) => IssueTemplate.fromJson(template),
+                )
+                .toList();
+          }
         }
       }
       print('Failed to load templates: ${response.statusCode}');
